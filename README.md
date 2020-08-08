@@ -5,7 +5,7 @@ When you first start the program, you will be introduced to a command line (migh
 
 (don't worry, i don't collect your data lol this is an open source project)
 
-Once the script finds any files, it will show the paths to them. You will have to choose a language file by its number in the list, starting from 1.
+Once the script finds any files, it will show the paths to them. You will have to choose a language file by its number in the list, starting from 0.
 
 After you choose the file, you can start messing with the language file!
 
@@ -70,7 +70,7 @@ version = "2.0"
     * `find()`, used to search for the language files, uses `os.walk()` to search
     * `getFile()`, used to set the `filePath` variable
     * `readLines()`, used to set the `fileToEdit` variable and read the lines from the file
-    * `clean()`, kinda pointless, removes one unnecessary line from the file, might remove it/add functionality
+    * `clean()`, removes empty/useless lines from the file
     * `colorize()`, called when the command is `colorize`
     * `randomize()`, called when the command is `randomize`
     * `command()`, used in the main loop of the script

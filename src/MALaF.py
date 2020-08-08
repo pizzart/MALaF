@@ -11,7 +11,7 @@ lines = []
 gameLines = []
 running = True
 user = getuser()
-version = "2.0"
+version = "1.1"
 
 asobo = "//ASOBO LANGUAGE FILE MODIFIER v{}\\\\".format(version)
 
@@ -64,7 +64,7 @@ def match(pattern, string):
 
 def find():
     global paths
-    for root, files in os.walk(systemRoot):
+    for root, dirs, files in os.walk(systemRoot):
         for file in files:
             if re.match("tt\d\d\.", file):
                 full = os.path.join(root, file)
@@ -82,9 +82,9 @@ def getFile():
             print("No files were found, " + user)
             stop()
         else:
-            fileNumber = input("Which file by number do you want to edit?: ")
+            fileNumber = input("Which file by number (starting from 0) do you want to edit?: ")
             try:
-                fileNumber = int(fileNumber) + 1
+                fileNumber = int(fileNumber)
             except:
                 print("Failed to convert input to an integer, " + user)
                 stop()
@@ -113,8 +113,10 @@ def readLines():
 def clean():
     global lines
     for line in lines:
-        if not line or line.isspace():
-            lines.remove(lines.index(line))
+        splitLine = line.split(" ", 2)
+        if splitLine[0] == "TT":
+            if splitLine[2] == '""' or splitLine[2] == '"$"' or splitLine[2] == '"^940 ^000"':
+                lines.remove(line)
 
 def colorize():
     global lines
@@ -173,10 +175,24 @@ def randomize():
             text = splitLine[2].replace('"', '')
             gameLines.append(text)
     random.shuffle(gameLines)
+    for i, line in enumerate(gameLines):
+        if line == "END OF ACTION":
+            gameLines[i] = "cheese"
     for i, line in enumerate(lines):
         splitLine = line.split(" ", 2)
         if splitLine[0] == "TT":
-            lines[i] = splitLine[0] + " " + splitLine[1] + ' "' + gameLines[i-1] + '"'
+            eoa = splitLine[0] + " " + splitLine[1] + ' "END OF ACTION"'
+            cheese = splitLine[0] + " " + splitLine[1] + ' "cheese2 electric boogaloo"'
+            if splitLine[1] == "15718":
+                lines[i] = eoa
+            elif splitLine[1] == "15721":
+                lines[i] = eoa
+            elif splitLine[1] == "15730":
+                lines[i] = eoa
+            elif splitLine[1] == "374":
+                lines[i] = cheese
+            else:
+                lines[i] = splitLine[0] + " " + splitLine[1] + ' "' + gameLines[i-1] + '"'
 
 def command():
     command = input("CMD: ")
@@ -206,8 +222,8 @@ def writeLines():
     global fileToEdit
     global filePath
     global lines
-    for i in enumerate(lines):
-        lines[i] += "\n"
+    for i, line in enumerate(lines):
+        lines[i] = line + "\n"
     fileToEdit = open(filePath, "w")
     fileToEdit.writelines(lines)
     fileToEdit.close()
