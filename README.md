@@ -18,8 +18,8 @@ Quit: write the changes and quit
 
 You can get descriptive help by using the `help` command.
 ```
-## Compiling
-If you want to compile the script for yourself at any time:
+## Building
+If you want to build the executable for yourself at any time:
 1. Open the command line (both PowerShell and CMD work, on Linux (and probably MacOS too) it's usually Ctrl+Alt+T)
 2. Git the repository
     * Either install git and clone the repo
@@ -30,14 +30,14 @@ If you want to compile the script for yourself at any time:
         2. Clone the repository: `git clone https://github.com/PizzArt/MALaF`
     * Or download the repository:
 
-        ![Download ZIP image](/Assets/download_zip.png)
+        ![Download ZIP image](/assets/download_zip.png)
 3. Install PyInstaller using pip
     1. Install pip
         * Windows and MacOS python installations should have pip installed, reinstall python with pip if you don't have it
         * Linux: use your package manager to install `python-pip`
     2. Install PyInstaller: `pip install pyinstaller --user`
 4. Change directory: `cd ./MALaF`
-5. Use PyInstaller: `pyinstaller --clean -i ./Assets/icon.png -n MALaF -F MALaF.py`
+5. Use PyInstaller: `pyinstaller --clean -i ./assets/icon.png -n MALaF -F ./src/MALaF.py`
 6. The executable should be in the `dist` folder
 7. Done!
 ## Understanding the script
