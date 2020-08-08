@@ -81,11 +81,11 @@ If you want to compile the script for yourself at any time:
 2. Git the repository
     * Either install git and clone the repo
         1. Install git
-            * Windows: (Git)[https://git-scm.com/download/win]
+            * Windows: [Git](https://git-scm.com/download/win)
             * MacOS: use brew to install: `brew install git`
             * Linux: use your distribution's package manager to install
         2. Clone the repository: `git clone https://github.com/PizzArt/MALaF`
-    * Or download the repository: !(Download ZIP image)[/Assets/download_zip.png]
+    * Or download the repository: ![Download ZIP image](/Assets/download_zip.png)
 3. Install PyInstaller using pip
     1. Install pip
         * Windows and MacOS python installations should have pip installed, reinstall python with pip if you don't have it
