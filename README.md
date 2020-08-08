@@ -86,6 +86,7 @@ If you want to compile the script for yourself at any time:
             * Linux: use your distribution's package manager to install
         2. Clone the repository: `git clone https://github.com/PizzArt/MALaF`
     * Or download the repository:
+
         ![Download ZIP image](/Assets/download_zip.png)
 3. Install PyInstaller using pip
     1. Install pip
