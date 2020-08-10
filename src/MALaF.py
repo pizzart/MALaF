@@ -1,35 +1,34 @@
+from time import sleep
+import random
 import re
 import os
-import random
-from getpass import getuser
 
 systemRoot = os.path.abspath('.').split(os.path.sep)[0]+os.path.sep
 paths = []
 fileToEdit = ""
 filePath = ""
 lines = []
-gameLines = []
+ignoreLines = ['END OF ACTION', 'P1', 'ABC', '\{Level\}']
+ignoreLetters = ['%', '~', ' ', '$', '²']
 running = True
-user = getuser()
-version = "1.1"
 
-asobo = "//ASOBO LANGUAGE FILE MODIFIER v{}\\\\".format(version)
+version = "1.2"
+asobo = "ASOBO LANGUAGE FILE MODIFIER v" + version
 
 welcomeText = """
-Make sure you have WALL-E installed / disc image unpacked in a folder or you have the path to the file you want to change.
-//use 'help' to get help"""
+Make sure you have the language file you want to edit on the current drive / you have the path to the file.
+"""
 
-pathQuestion = """
-Do you want the script to ('search') for the file OR
-Do you want to provide a (*path to the file*)?: """
+pathQuestion = "Automatic 'search', 'new' file or a path?: "
 
-helpQuestion = "(*command*) for help for a command or ('general') for general help: "
+helpQuestion = "Command or 'general' help? : "
 
 generalHelp = """General help
 
     Help: get help
     Colorize: colorize the text lines
-    Randomize: randomize the text lines"""
+    Randomize: randomize the text lines
+"""
 
 colorizeHelp = """Colorize
 
@@ -41,66 +40,98 @@ colorizeHelp = """Colorize
     Basic colors: Red = 900, Yellow = 980, Green = 090, Blue = 109, Purple = 509, White = 999, Black = 000
 
     Changes every line's color to a specific color OR
-    Randomizes every line's color to a random color"""
+    Randomizes every line's color to a random color
+"""
 
 randomizeHelp = """Randomize
 
     Usage: randomize
 
-    Mixes up every line in the language file"""
+    Mixes up every line in the language file
+"""
+
+defaultHelp = """Default
+
+    Usage: default
+    
+    Removes every modification and sets the language file to english (copies a file basically)
+"""
 
 quitHelp = """Quit
 
     Usage: quit
 
-    Quits the script (duh)."""
+    Quits the script
+"""
 
-def stop():
-    input("Exiting, try harder next time, " + user)
+helpTexts = {
+    "general": generalHelp,
+    "colorize": colorizeHelp,
+    "randomize": randomizeHelp,
+    "default": defaultHelp,
+    "quit": quitHelp,
+}
+
+def clearCL():
+    os.system('cls' if os.name=='nt' else 'clear')
+
+def stop(time):
+    print("Quitting.")
+    sleep(time)
+    clearCL()
     quit()
 
-def match(pattern, string):
-    return re.match(pattern, string, re.IGNORECASE)
-
-def find():
+def search():
     global paths
+    global filePath
     for root, dirs, files in os.walk(systemRoot):
         for file in files:
-            if re.match("tt\d\d\.", file):
+            if re.search("tt[0-9][0-9]\.p[sc]", file, re.IGNORECASE):
                 full = os.path.join(root, file)
-                print(full)
                 paths.append(full)
-    return paths
+                print(full + " - " + str(paths.index(full)))
+    if len(paths) == 0:
+        print("No files were found.")
+        stop(1)
+    else:
+        fileNumber = input("Which file by number do you want to edit?: ")
+        try:
+            fileNumber = int(fileNumber)
+        except:
+            print("Failed to convert input to an integer.")
+            stop(1)
+        else:
+            filePath = paths[fileNumber]
+
+def path(path):
+    if os.path.isfile(path):
+        global filePath
+        filePath = path
+    elif os.path.isdir(path):
+        print("The path you provided is a directory, not file.")
+        stop(1)
+    else:
+        print("The path you provided probably doesn't exist.")
+        stop(1)
+
+def newFile():
+    global filePath
+    global fileToEdit
+    global lines
+    filePath = "tt01.pc"
+    lines = open("files/default.txt", "r").read()
+    fileToEdit = open(filePath, 'w+')
+    fileToEdit.write(lines)
+    fileToEdit.close()
 
 def getFile():
-    global fileToEdit
-    global filePath
     path = input(pathQuestion)
-    if match("search", path):
-        find()
-        if len(paths) == 0:
-            print("No files were found, " + user)
-            stop()
-        else:
-            fileNumber = input("Which file by number (starting from 0) do you want to edit?: ")
-            try:
-                fileNumber = int(fileNumber)
-            except:
-                print("Failed to convert input to an integer, " + user)
-                stop()
-            else:
-                fileToEdit = paths[fileNumber]
-                filePath = paths[fileNumber]
+    if path.lower() == "search":
+        search()
+    elif path.lower() == "new":
+        newFile()
     else:
-        if os.path.isfile(path):
-            fileToEdit += path
-            filePath += path
-        elif os.path.isdir(path):
-            print("The path you provided is a directory, not file, " + user)
-            stop()
-        else:
-            print("The path you provided probably doesn't exist, " + user)
-            stop()
+        path(path)
 
 def readLines():
     global fileToEdit
@@ -112,127 +143,186 @@ def readLines():
 
 def clean():
     global lines
+    useless = ['""', '"$"', '"^940 ^000"', '" "']
     for line in lines:
         splitLine = line.split(" ", 2)
         if splitLine[0] == "TT":
-            if splitLine[2] == '""' or splitLine[2] == '"$"' or splitLine[2] == '"^940 ^000"':
+            if splitLine[2] in useless:
                 lines.remove(line)
+
+def quitScript():
+    global running
+    running = False
+
+def decolorize(line):
+    return re.sub("\^\d\d\d", "", line)
 
 def colorize():
     global lines
     color = input("Color in RGB or 'rainbow'?: ")
-    if match("rainbow", color):
+    if color.lower() == "rainbow":
         lineLetter = input("'lines' or 'letters'?: ")
-        if match("lines", lineLetter):
+        if lineLetter.lower() == "lines":
             for i, line in enumerate(lines):
+                skip = False
                 splitLine = line.split(" ", 2)
                 if splitLine[0] == "TT":
-                    color = str(random.randint(100, 999))
-                    text = splitLine[2].replace('"', '')
-                    text = '"^' + color + text + '^000"'
-                    lines[i] = "TT " + splitLine[1] + " " + text
-        elif match("letters", lineLetter):
-            print("oops sorry {} i will fix that in the next update ok im too lazy".format(user))
-            """
-            for i, line in enumerate(lines):
-                splitLine = line.split(" ", 2)
-                if splitLine[0] == "TT":
-                    text = splitLine[2].replace('"', '')
-                    textList = list(text)
-                    print(textList)
-                    for i, letter in enumerate(textList):
+                    splitLine[2] = decolorize(splitLine[2])
+                    for ignored in ignoreLines:
+                        if re.search(ignored, line):
+                            skip = True
+                    if not skip:
                         color = str(random.randint(100, 999))
-                        textList[i] = '^' + color + letter + '^000'
-                    print(textList)
-                    lines[i] = "TT " + splitLine[1] + ' "' + "".join(textList) + '"'
-                    print(lines[i])
-            """
+                        text = splitLine[2].replace('"', '')
+                        text = '"^' + color + text + '^000"'
+                        lines[i] = "TT " + splitLine[1] + " " + text
+        elif lineLetter.lower() == "letters":
+            for i, line in enumerate(lines):
+                skip = False
+                splitLine = line.split(" ", 2)
+                if splitLine[0] == "TT":
+                    splitLine[2] = decolorize(splitLine[2])
+                    for ignored in ignoreLines:
+                        if re.search(ignored, line):
+                            skip = True
+                    if not skip:
+                        text = splitLine[2].replace('"', '')
+                        if len(text) * 8 <= 1020:
+                            textList = list(text)
+                            for letterI, letter in enumerate(textList):
+                                if letter not in ignoreLetters:
+                                    try:
+                                        if textList[letterI - 1] != "%":
+                                            color = str(random.randint(100, 999))
+                                            textList[letterI] = '^' + color + letter + '^000'
+                                    except:
+                                        pass
+                            lines[i] = "TT " + splitLine[1] + ' "' + "".join(textList) + '"'
+                        else:
+                            color = str(random.randint(100, 999))
+                            text = splitLine[2].replace('"', '')
+                            text = '"^' + color + text + '^000"'
+                            lines[i] = "TT " + splitLine[1] + " " + text
         else:
-            print("bruh you dum " + user)
-            
+            print("No such command.")
     else:
         try:
             int(color)
         except:
-            print("The color code is not an integer, " + user)
+            print("The color code is not an integer.")
         else:
             if len(color) == 3:
                 for i, line in enumerate(lines):
                     splitLine = line.split(" ", 2)
                     if splitLine[0] == "TT":
-                        text = splitLine[2].replace('"', '')
-                        text = '"^' + color + text + '^000"'
-                        lines[i] = "TT " + splitLine[1] + " " + text
+                        splitLine[2] = decolorize(splitLine[2])
+                        for ignored in ignoreLines:
+                            if re.search(ignored, line):
+                                skip = True
+                        if not skip:
+                            text = splitLine[2].replace('"', '')
+                            text = '"^' + color + text + '^000"'
+                            lines[i] = "TT " + splitLine[1] + " " + text
             else:
-                print("Invalid color code (the color code you provided is not a 3 number integer), " + user)
+                print("Invalid color code (the color code you provided is not a 3 number integer)")
 
 def randomize():
     global lines
-    global gameLines
+    gameLines = []
     for line in lines:
         splitLine = line.split(" ", 2)
         if splitLine[0] == "TT":
             text = splitLine[2].replace('"', '')
             gameLines.append(text)
     random.shuffle(gameLines)
-    for i, line in enumerate(gameLines):
-        if line == "END OF ACTION":
-            gameLines[i] = "cheese"
     for i, line in enumerate(lines):
         splitLine = line.split(" ", 2)
         if splitLine[0] == "TT":
-            eoa = splitLine[0] + " " + splitLine[1] + ' "END OF ACTION"'
-            cheese = splitLine[0] + " " + splitLine[1] + ' "cheese2 electric boogaloo"'
-            if splitLine[1] == "15718":
-                lines[i] = eoa
-            elif splitLine[1] == "15721":
-                lines[i] = eoa
-            elif splitLine[1] == "15730":
-                lines[i] = eoa
-            elif splitLine[1] == "374":
-                lines[i] = cheese
-            else:
-                lines[i] = splitLine[0] + " " + splitLine[1] + ' "' + gameLines[i-1] + '"'
+            lines[i] = splitLine[0] + " " + splitLine[1] + ' "' + gameLines[i - 1] + '"'
 
-def command():
-    command = input("CMD: ")
-    if match("help", command):
-        help = input(helpQuestion)
+def default():
+    sure = input("Are you sure you want to remove all modifications? [Y/N]: ")
+    if sure.lower() == "y":
+        global lines
+        lines = open("files/default.txt", "r").read().splitlines()
+    clean()
 
-        if match("general", help):
-            print(generalHelp)
-        elif match("colorize", help):
-            print(colorizeHelp)
-        elif match("randomize", help):
-            print(randomizeHelp)
-        elif match("quit", help):
-            print(quitHelp)
-    
-    elif match("colorize", command):
-        colorize()
-    elif match("randomize", command):
-        randomize()
-    elif match("quit", command):
-        global running
-        running = False
-    else:
-        print("No such command, " + user)
+def getHelp():
+    help = input(helpQuestion)
+    if help in helpTexts:
+        print(helpTexts[help])
 
-def writeLines():
+commands = {
+    "quit": quitScript,
+    "colorize": colorize,
+    "randomize": randomize,
+    "default": default,
+    "help": getHelp,
+}
+
+def getCommand():
+    command = input(">>> ")
+    if command.lower() in commands:
+        commands[command]()
+    elif command != "":
+        print("No such command.")
+
+def write():
     global fileToEdit
     global filePath
     global lines
+    toChange = {
+        "15718": '"END OF ACTION"',
+        "15721": '"END OF ACTION"',
+        "15730": '"END OF ACTION"',
+        "374": '"P1"',
+        "1": '"WALL-E"',
+        "2": '"WALL-E"',
+        "3": '"WALL-E"',
+        "4": '"WALL-E"',
+        "15500": '"WALL-E"',
+    }
     for i, line in enumerate(lines):
+        splitLine = line.split(" ", 2)
+        if splitLine[0] == "TT":
+            if splitLine[1] in toChange:
+                lines[i] = splitLine[0] + ' ' + splitLine[1] + ' ' + toChange[splitLine[1]]
         lines[i] = line + "\n"
     fileToEdit = open(filePath, "w")
     fileToEdit.writelines(lines)
     fileToEdit.close()
 
-print(asobo.center(100))
-print(welcomeText)
-getFile()
-readLines()
-clean()
-while running:
-    command()
-writeLines()
+def main():
+    clearCL()
+    print(asobo.center(120))
+    print(welcomeText)
+    getFile()
+    readLines()
+    clean()
+    clearCL()
+    while running:
+        getCommand()
+    write()
+    clean()
+    stop(0.25)
+
+try:
+    main()
+except KeyboardInterrupt:
+    print("\nReceived a keyboard interrupt.")
+    stop(0.75)
+except FileNotFoundError:
+    print("While the script was running, the file was removed.")
+    stop(1.25)
+except Exception as exc:
+    from datetime import datetime
+    import platform
+    print("An exception has occurred. The exception has been written to 'error_output.txt'.\nPlease report this to https://github.com/PizzArt/MALaF/issues. Thanks.")
+    errorOutput = open('error_output.txt', 'a+')
+    errorOutput.write("--------Exception--------\n")
+    errorOutput.write(datetime.now().strftime("%d/%m/%y %H:%M:%S"))
+    errorOutput.write('\nPlatform: {} \nPython version: {}'.format(platform.platform(), platform.python_version()))
+    errorOutput.write("\nPlease report this to https://github.com/PizzArt/MALaF/issues \n")
+    print(exc, file=errorOutput)
+    errorOutput.close()
+    stop(7.5)
