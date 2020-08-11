@@ -1,4 +1,5 @@
 from time import sleep
+from sys import exit
 import random
 import re
 import os
@@ -79,7 +80,7 @@ def stop(time):
     print("Quitting.")
     sleep(time)
     clearCL()
-    quit()
+    exit()
 
 def search():
     global paths
