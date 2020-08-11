@@ -16,7 +16,7 @@ ignoreLines = ['END OF ACTION', 'P1', 'ABC', '\{Level\}']
 ignoreLetters = ['%', '~', ' ', '$', '²']
 running = True
 
-version = '1.2'
+version = '1.2.1'
 asobo = "ASOBO LANGUAGE FILE MODIFIER v" + version
 
 welcomeText = """
@@ -95,7 +95,7 @@ def stop(time):
     print("Quitting.")
     sleep(time)
     clearCL()
-    exit()
+    exit(0)
 
 def search():
     global paths
@@ -159,7 +159,7 @@ def readLines():
 
 def clean():
     global lines
-    useless = ['""', '"$"', '"^940 ^000"', '' '']
+    useless = ['""', '"$"', '"^940 ^000"', '" "']
     for line in lines:
         splitLine = line.split(' ', 2)
         if splitLine[0] == "TT":
@@ -334,12 +334,13 @@ except:
     currentTime = datetime.now().strftime('%d/%m/%y %H:%M:%S')
     print(exceptionText)
     errorOutput = open('error_output.txt', 'a+', encoding='utf8')
-    errorOutput.write("########EXCEPTION OUTPUT########\n")
+    errorOutput.write("OUTPUT START\n".center(120))
     errorOutput.write("Time: {}\n".format(currentTime))
     errorOutput.write(systemInfo)
-    errorOutput.write("\n\n--------Exception Start--------\n")
+    errorOutput.write("\n\nException Start\n".center(120))
     print_exc(file=errorOutput)
-    errorOutput.write("\n--------Exception End--------\n")
+    errorOutput.write("Exception End\n\n".center(120))
     errorOutput.write(report)
+    errorOutput.write("OUTPUT END\n".center(120))
     errorOutput.close()
     stop(7.5)
