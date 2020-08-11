@@ -95,7 +95,7 @@ def stop(time):
     print("Quitting.")
     sleep(time)
     clearCL()
-    exit(0)
+    exit()
 
 def search():
     global paths
@@ -327,9 +327,11 @@ try:
 except KeyboardInterrupt:
     print("\nReceived a keyboard interrupt.")
     stop(0.75)
-except FileNotFoundError:
-    print("While the script was running, the file was removed.")
-    stop(1.25)
+#except FileNotFoundError:
+    #print("While the script was running, the file was removed.")
+    #stop(1.25)
+except SystemExit:
+    pass
 except:
     currentTime = datetime.now().strftime('%d/%m/%y %H:%M:%S')
     print(exceptionText)
