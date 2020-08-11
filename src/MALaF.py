@@ -15,11 +15,11 @@ default_text_path = os.path.join(base_path, "files/default.txt")
 file_to_edit = ''
 file_path = ''
 lines = []
-ignored_patterns = ['END OF ACTION', 'P1', 'ABC', '\{Level\}']
+ignored_patterns = ['END OF ACTION', 'P1', 'ABC', '{Level}']
 ignored_characters = ['%', '~', ' ', '$', '²']
 running = True
 
-version = 'v1.3-b'
+version = 'v1.3-B.2'
 asobo = "ASOBO LANGUAGE FILE MODIFIER " + version
 
 welcome_text = """
@@ -85,7 +85,7 @@ helpTexts = {
     "colorize": colorize_help,
     "randomize": randomize_help,
     "default": default_help,
-    "quit": quit_help,
+    "clean": clean_help,
 }
 
 
@@ -100,19 +100,19 @@ def stop(time):
     sys.exit()
 
 
-def cmd(cmd: str, cmd_start: str):
-    return cmd.lower().startswith(cmd_start)
+def prompt(cmd, cmd_start):
+    return cmd.lower().strip().startswith(cmd_start)
 
 
 def select_file():
-    global file_path
     fileNumber = input("Choose a file to edit by its number: ")
     try:
         fileNumber = int(fileNumber)
-    except:
+    except TypeError:
         print("Failed to convert input to an integer.")
         select_file()
     else:
+        global file_path
         file_path = paths[fileNumber]
 
 
@@ -125,22 +125,22 @@ def search():
                 paths.append(full)
                 print(full + " - " + str(paths.index(full)))
     if not paths:
-        print("No files were found.")
-        stop(1)
+        print("No files were found, let's try again.")
+        get_file()
     else:
         select_file()
 
 
-def path(path):
+def set_file_path(path):
     if os.path.isfile(path):
         global file_path
         file_path = path
     elif os.path.isdir(path):
-        print("The path you provided is a directory, not file.")
-        stop(1)
+        print("The path you provided is a directory, not file, let's try again.")
+        get_file()
     else:
-        print("The path you provided doesn't exist or has errors.")
-        stop(1)
+        print("The path you provided doesn't exist or has errors, let's try again.")
+        get_file()
 
 
 def new_file():
@@ -156,21 +156,18 @@ def new_file():
 
 def get_file():
     path = input(file_question)
-    if cmd(path, 'sea'):
+    if prompt(path, 'sea'):
         search()
-    elif cmd(path, 'new'):
+    elif prompt(path, 'new'):
         new_file()
     else:
-        path(path)
+        set_file_path(path)
 
 
-def readLines():
-    global file_to_edit
+def read_lines():
     global file_path
     global lines
-    file_to_edit = open(file_path, "r", encoding='utf8')
-    lines = file_to_edit.read().splitlines()
-    file_to_edit.close()
+    lines = open(file_path, "r", encoding='utf8').read().splitlines()
 
 
 def clean():
@@ -192,77 +189,63 @@ def decolorize(line):
     return re.sub("\^\d\d\d", "", line)
 
 
+def color_lines(lines, rainbow, color='000'):
+    for i, line in enumerate(lines):
+        splitLine = line.split(' ', 2)
+        if splitLine[0] == 'TT':
+            splitLine[2] = decolorize(splitLine[2])
+            if (re.search(ignored, line) for ignored in ignored_patterns):
+                continue
+            if rainbow:
+                color = str(random.randint(100, 999))
+            text = splitLine[2].replace('"', '')
+            text = '"^' + color + text + '^000"'
+            lines[i] = 'TT ' + splitLine[1] + ' ' + text
+
+
+def color_letters(lines):
+    for i, line in enumerate(lines):
+        splitLine = line.split(' ', 2)
+        if splitLine[0] == 'TT':
+            splitLine[2] = decolorize(splitLine[2])
+            if (re.search(ignored, line) for ignored in ignored_patterns):
+                continue
+            text = splitLine[2].replace('"', '')
+            if len(text) * 8 <= 1020:
+                textList = list(text)
+                for letterI, letter in enumerate(textList):
+                    if letter not in ignored_characters:
+                        if textList[letterI - 1] != "%":
+                            color = str(random.randint(100, 999))
+                            textList[letterI] = '^' + \
+                                color + letter + '^000'
+                            lines[i] = 'TT ' + splitLine[1] + \
+                                ' "' + ''.join(textList) + '"'
+            else:
+                color = str(random.randint(100, 999))
+                text = splitLine[2].replace('"', '')
+                text = '"^' + color + text + '^000"'
+                lines[i] = 'TT ' + splitLine[1] + ' ' + text
+
+
 def colorize():
     global lines
     color = input("Color in RGB or 'rainbow'?: ")
-    if color.lower() == "rainbow":
+    if prompt(color, 'rain'):
         symbols_question = input("Colorize by each 'line' or 'character'?: ")
-        if symbols_question.lower() == "lines":
-            for i, line in enumerate(lines):
-                skip = False
-                splitLine = line.split(' ', 2)
-                if splitLine[0] == 'TT':
-                    splitLine[2] = decolorize(splitLine[2])
-                    for ignored in ignored_patterns:
-                        if re.search(ignored, line):
-                            skip = True
-                    if not skip:
-                        color = str(random.randint(100, 999))
-                        text = splitLine[2].replace('"', '')
-                        text = '"^' + color + text + '^000"'
-                        lines[i] = 'TT ' + splitLine[1] + ' ' + text
-        elif symbols_question.lower() == "letters":
-            for i, line in enumerate(lines):
-                skip = False
-                splitLine = line.split(' ', 2)
-                if splitLine[0] == 'TT':
-                    splitLine[2] = decolorize(splitLine[2])
-                    for ignored in ignored_patterns:
-                        if re.search(ignored, line):
-                            skip = True
-                    if not skip:
-                        text = splitLine[2].replace('"', '')
-                        if len(text) * 8 <= 1020:
-                            textList = list(text)
-                            for letterI, letter in enumerate(textList):
-                                if letter not in ignored_characters:
-                                    try:
-                                        if textList[letterI - 1] != "%":
-                                            color = str(
-                                                random.randint(100, 999))
-                                            textList[letterI] = '^' + \
-                                                color + letter + '^000'
-                                    except:
-                                        pass
-                            lines[i] = 'TT ' + splitLine[1] + \
-                                ' "' + ''.join(textList) + '"'
-                        else:
-                            color = str(random.randint(100, 999))
-                            text = splitLine[2].replace('"', '')
-                            text = '"^' + color + text + '^000"'
-                            lines[i] = 'TT ' + splitLine[1] + ' ' + text
+        if prompt(symbols_question, 'lin'):
+            color_lines(lines, True)
+        elif prompt(symbols_question, 'lett'):
+            color_letters(lines)
         else:
-            print("No such command.")
+            print("Invalid selection.")
     else:
         try:
             int(color)
         except:
-            print("The color code is not an integer.")
+            print("The color code is not an integer / invalid selection.")
         else:
-            if len(color) == 3:
-                for i, line in enumerate(lines):
-                    splitLine = line.split(' ', 2)
-                    if splitLine[0] == 'TT':
-                        splitLine[2] = decolorize(splitLine[2])
-                        for ignored in ignored_patterns:
-                            if re.search(ignored, line):
-                                skip = True
-                        if not skip:
-                            text = splitLine[2].replace('"', '')
-                            text = '"^' + color + text + '^000"'
-                            lines[i] = 'TT ' + splitLine[1] + ' ' + text
-            else:
-                print("Invalid color code (not a 3 number integer)")
+            color_lines(lines, False, color)
 
 
 def randomize():
@@ -283,12 +266,12 @@ def randomize():
 
 def default():
     sure = input(
-        "Are you sure you want to remove all modifications? [Y]es/[N]o: ")
-    if sure.lower().startswith('y'):
+        "Do you want to remove all modifications? [Y]es/[N]o: ")
+    if prompt(sure, 'y'):
         global lines
         lines = open(default_text_path, 'r',
                      encoding='utf8').read().splitlines()
-    clean()
+        clean()
 
 
 def get_help():
@@ -303,14 +286,15 @@ commands = {
     "randomize": randomize,
     "default": default,
     "help": get_help,
+    "clean": clean,
 }
 
 
 def get_command():
     command = input('>>> ')
-    if command.lower() in commands:
+    if command.lower().strip().startswith(command[:4]):
         commands[command]()
-    elif command != "":
+    elif command != '':
         print("No such command.")
 
 
@@ -346,7 +330,7 @@ def main():
     print(asobo)
     print(welcome_text)
     get_file()
-    readLines()
+    read_lines()
     clear_cmdline()
     while running:
         get_command()
@@ -359,12 +343,9 @@ try:
 except KeyboardInterrupt:
     print("\nReceived a keyboard interrupt.")
     stop(0.75)
-# except FileNotFoundError:
-    #print("While the script was running, the file was removed.")
-    # stop(1.25)
 except SystemExit:
     pass
-except:
+except Exception:
     currentTime = datetime.now().strftime('%d/%m/%y %H:%M:%S')
     print(exception_text)
     errorOutput = open('error_output.txt', 'a+', encoding='utf8')
