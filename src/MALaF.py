@@ -1,19 +1,22 @@
 from time import sleep
 from sys import exit
+from traceback import print_exc
+from datetime import datetime
+import platform
 import random
 import re
 import os
 
 systemRoot = os.path.abspath('.').split(os.path.sep)[0]+os.path.sep
 paths = []
-fileToEdit = ""
-filePath = ""
+fileToEdit = ''
+filePath = ''
 lines = []
 ignoreLines = ['END OF ACTION', 'P1', 'ABC', '\{Level\}']
 ignoreLetters = ['%', '~', ' ', '$', '²']
 running = True
 
-version = "1.2"
+version = '1.2'
 asobo = "ASOBO LANGUAGE FILE MODIFIER v" + version
 
 welcomeText = """
@@ -65,6 +68,18 @@ quitHelp = """Quit
     Quits the script
 """
 
+exceptionText = """--An exception has occurred!--
+The exception has been written to 'error_output.txt'.
+Report this to https://github.com/PizzArt/MALaF/issues"""
+
+systemInfo = """Platform: {}
+Python version: {}
+Script version: {}""".format(platform.platform(), platform.python_version(), version)
+
+report = """========Reporting========
+Please report this to https://github.com/PizzArt/MALaF/issues. Thanks.
+"""
+
 helpTexts = {
     "general": generalHelp,
     "colorize": colorizeHelp,
@@ -112,24 +127,24 @@ def path(path):
         print("The path you provided is a directory, not file.")
         stop(1)
     else:
-        print("The path you provided probably doesn't exist.")
+        print("The path you provided doesn't exist or has errors.")
         stop(1)
 
 def newFile():
     global filePath
     global fileToEdit
     global lines
-    filePath = "tt01.pc"
-    lines = open("files/default.txt", "r").read()
-    fileToEdit = open(filePath, 'w+')
+    filePath = 'tt01.pc'
+    lines = open("files/default.txt", 'r', encoding='utf8').read()
+    fileToEdit = open(filePath, 'w+', encoding='utf8')
     fileToEdit.write(lines)
     fileToEdit.close()
 
 def getFile():
     path = input(pathQuestion)
-    if path.lower() == "search":
+    if path.lower() == 'search':
         search()
-    elif path.lower() == "new":
+    elif path.lower() == 'new':
         newFile()
     else:
         path(path)
@@ -138,15 +153,15 @@ def readLines():
     global fileToEdit
     global filePath
     global lines
-    fileToEdit = open(filePath, "r")
+    fileToEdit = open(filePath, "r", encoding='utf8')
     lines = fileToEdit.read().splitlines()
     fileToEdit.close()
 
 def clean():
     global lines
-    useless = ['""', '"$"', '"^940 ^000"', '" "']
+    useless = ['""', '"$"', '"^940 ^000"', '' '']
     for line in lines:
-        splitLine = line.split(" ", 2)
+        splitLine = line.split(' ', 2)
         if splitLine[0] == "TT":
             if splitLine[2] in useless:
                 lines.remove(line)
@@ -166,7 +181,7 @@ def colorize():
         if lineLetter.lower() == "lines":
             for i, line in enumerate(lines):
                 skip = False
-                splitLine = line.split(" ", 2)
+                splitLine = line.split(' ', 2)
                 if splitLine[0] == "TT":
                     splitLine[2] = decolorize(splitLine[2])
                     for ignored in ignoreLines:
@@ -176,11 +191,11 @@ def colorize():
                         color = str(random.randint(100, 999))
                         text = splitLine[2].replace('"', '')
                         text = '"^' + color + text + '^000"'
-                        lines[i] = "TT " + splitLine[1] + " " + text
+                        lines[i] = 'TT ' + splitLine[1] + ' ' + text
         elif lineLetter.lower() == "letters":
             for i, line in enumerate(lines):
                 skip = False
-                splitLine = line.split(" ", 2)
+                splitLine = line.split(' ', 2)
                 if splitLine[0] == "TT":
                     splitLine[2] = decolorize(splitLine[2])
                     for ignored in ignoreLines:
@@ -198,12 +213,12 @@ def colorize():
                                             textList[letterI] = '^' + color + letter + '^000'
                                     except:
                                         pass
-                            lines[i] = "TT " + splitLine[1] + ' "' + "".join(textList) + '"'
+                            lines[i] = 'TT ' + splitLine[1] + ' "' + ''.join(textList) + '"'
                         else:
                             color = str(random.randint(100, 999))
                             text = splitLine[2].replace('"', '')
                             text = '"^' + color + text + '^000"'
-                            lines[i] = "TT " + splitLine[1] + " " + text
+                            lines[i] = 'TT ' + splitLine[1] + ' ' + text
         else:
             print("No such command.")
     else:
@@ -214,8 +229,8 @@ def colorize():
         else:
             if len(color) == 3:
                 for i, line in enumerate(lines):
-                    splitLine = line.split(" ", 2)
-                    if splitLine[0] == "TT":
+                    splitLine = line.split(' ', 2)
+                    if splitLine[0] == 'TT':
                         splitLine[2] = decolorize(splitLine[2])
                         for ignored in ignoreLines:
                             if re.search(ignored, line):
@@ -223,29 +238,29 @@ def colorize():
                         if not skip:
                             text = splitLine[2].replace('"', '')
                             text = '"^' + color + text + '^000"'
-                            lines[i] = "TT " + splitLine[1] + " " + text
+                            lines[i] = 'TT ' + splitLine[1] + ' ' + text
             else:
-                print("Invalid color code (the color code you provided is not a 3 number integer)")
+                print("Invalid color code (not a 3 number integer)")
 
 def randomize():
     global lines
     gameLines = []
     for line in lines:
-        splitLine = line.split(" ", 2)
-        if splitLine[0] == "TT":
+        splitLine = line.split(' ', 2)
+        if splitLine[0] == 'TT':
             text = splitLine[2].replace('"', '')
             gameLines.append(text)
     random.shuffle(gameLines)
     for i, line in enumerate(lines):
-        splitLine = line.split(" ", 2)
-        if splitLine[0] == "TT":
-            lines[i] = splitLine[0] + " " + splitLine[1] + ' "' + gameLines[i - 1] + '"'
+        splitLine = line.split(' ', 2)
+        if splitLine[0] == 'TT':
+            lines[i] = splitLine[0] + ' ' + splitLine[1] + ' "' + gameLines[i - 1] + '"'
 
 def default():
     sure = input("Are you sure you want to remove all modifications? [Y/N]: ")
-    if sure.lower() == "y":
+    if sure.lower() == 'y':
         global lines
-        lines = open("files/default.txt", "r").read().splitlines()
+        lines = open('files/default.txt', 'r', encoding='utf8').read().splitlines()
     clean()
 
 def getHelp():
@@ -262,7 +277,7 @@ commands = {
 }
 
 def getCommand():
-    command = input(">>> ")
+    command = input('>>> ')
     if command.lower() in commands:
         commands[command]()
     elif command != "":
@@ -284,12 +299,12 @@ def write():
         "15500": '"WALL-E"',
     }
     for i, line in enumerate(lines):
-        splitLine = line.split(" ", 2)
-        if splitLine[0] == "TT":
+        splitLine = line.split(' ', 2)
+        if splitLine[0] == 'TT':
             if splitLine[1] in toChange:
                 lines[i] = splitLine[0] + ' ' + splitLine[1] + ' ' + toChange[splitLine[1]]
-        lines[i] = line + "\n"
-    fileToEdit = open(filePath, "w")
+        lines[i] = line + '\n'
+    fileToEdit = open(filePath, 'w', encoding='utf8')
     fileToEdit.writelines(lines)
     fileToEdit.close()
 
@@ -315,15 +330,16 @@ except KeyboardInterrupt:
 except FileNotFoundError:
     print("While the script was running, the file was removed.")
     stop(1.25)
-except Exception as exc:
-    from datetime import datetime
-    import platform
-    print("An exception has occurred. The exception has been written to 'error_output.txt'.\nPlease report this to https://github.com/PizzArt/MALaF/issues. Thanks.")
-    errorOutput = open('error_output.txt', 'a+')
-    errorOutput.write("--------Exception--------\n")
-    errorOutput.write(datetime.now().strftime("%d/%m/%y %H:%M:%S"))
-    errorOutput.write('\nPlatform: {} \nPython version: {}'.format(platform.platform(), platform.python_version()))
-    errorOutput.write("\nPlease report this to https://github.com/PizzArt/MALaF/issues \n")
-    print(exc, file=errorOutput)
+except:
+    currentTime = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+    print(exceptionText)
+    errorOutput = open('error_output.txt', 'a+', encoding='utf8')
+    errorOutput.write("########EXCEPTION OUTPUT########\n")
+    errorOutput.write("Time: {}\n".format(currentTime))
+    errorOutput.write(systemInfo)
+    errorOutput.write("\n\n--------Exception Start--------\n")
+    print_exc(file=errorOutput)
+    errorOutput.write("\n--------Exception End--------\n")
+    errorOutput.write(report)
     errorOutput.close()
     stop(7.5)
