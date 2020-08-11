@@ -15,11 +15,11 @@ default_text_path = os.path.join(base_path, "files/default.txt")
 file_to_edit = ''
 file_path = ''
 lines = []
-ignored_patterns = ['END OF ACTION', 'P1', 'ABC', '{Level}']
+ignored_patterns = ['END OF ACTION', 'P1', 'ABC', '\{Level\}']
 ignored_characters = ['%', '~', ' ', '$', '²']
 running = True
 
-version = 'v1.3-B.2'
+version = 'v1.3-B-2.1'
 asobo = "ASOBO LANGUAGE FILE MODIFIER " + version
 
 welcome_text = """
