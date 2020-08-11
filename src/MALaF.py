@@ -1,14 +1,16 @@
-from time import sleep
-from sys import exit
 from traceback import print_exc
 from datetime import datetime
+from time import sleep
 import platform
 import random
+import sys
 import re
 import os
 
 systemRoot = os.path.abspath('.').split(os.path.sep)[0]+os.path.sep
 paths = []
+basePath = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+defaultTextPath = os.path.join(basePath, "files/default.txt")
 fileToEdit = ''
 filePath = ''
 lines = []
@@ -16,7 +18,7 @@ ignoreLines = ['END OF ACTION', 'P1', 'ABC', '\{Level\}']
 ignoreLetters = ['%', '~', ' ', '$', '²']
 running = True
 
-version = '1.2.1'
+version = '1.2.2'
 asobo = "ASOBO LANGUAGE FILE MODIFIER v" + version
 
 welcomeText = """
@@ -72,9 +74,12 @@ exceptionText = """--An exception has occurred!--
 The exception has been written to 'error_output.txt'.
 Report this to https://github.com/PizzArt/MALaF/issues"""
 
+frozen = ('Yes' if hasattr(sys, '_MEIPASS') else 'No')
+
 systemInfo = """Platform: {}
 Python version: {}
-Script version: {}""".format(platform.platform(), platform.python_version(), version)
+Script version: {}
+Frozen: {}""".format(platform.platform(), platform.python_version(), version, frozen)
 
 report = """========Reporting========
 Please report this to https://github.com/PizzArt/MALaF/issues. Thanks.
@@ -95,7 +100,7 @@ def stop(time):
     print("Quitting.")
     sleep(time)
     clearCL()
-    exit()
+    sys.exit()
 
 def search():
     global paths
@@ -135,7 +140,7 @@ def newFile():
     global fileToEdit
     global lines
     filePath = 'tt01.pc'
-    lines = open("files/default.txt", 'r', encoding='utf8').read()
+    lines = open(defaultTextPath, 'r', encoding='utf8').read()
     fileToEdit = open(filePath, 'w+', encoding='utf8')
     fileToEdit.write(lines)
     fileToEdit.close()
