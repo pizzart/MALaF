@@ -19,7 +19,7 @@ ignored_patterns = ['END OF ACTION', 'P1', 'ABC', '\{Level\}']
 ignored_characters = ['%', '~', ' ', '$', '²']
 running = True
 
-version = 'v1.3'
+version = 'v1.3.1'
 asobo = "ASOBO LANGUAGE FILE MODIFIER " + version
 
 welcome_text = """
@@ -105,7 +105,7 @@ def stop(time):
     try:
         sys.exit()
     except SystemExit:
-        print("\nQuit.")
+        pass
 
 
 def prompt(cmd, cmd_start):
@@ -178,18 +178,25 @@ def read_lines():
     lines = open(file_path, "r", encoding='utf8').read().splitlines()
 
 
-def clean():
-    global lines
-    useless = ['""', '"$"', '"^940 ^000"', '" "']
-    removed_count = 0
+def remove_lines(lines, count, useless):
     for line in lines:
         splitLine = line.split(' ', 2)
         if splitLine[0] == 'TT':
             if splitLine[2] in useless:
-                print(line)
                 lines.remove(line)
-                removed_count += 1
-    print("Removed lines: " + str(removed_count))
+                count += 1
+    return count
+
+
+def clean():
+    global lines
+    useless = ['""', '"$"', '"^940 ^000"', '" "']
+    removed_count = 0
+    i = 10
+    while i:
+        removed_count = remove_lines(lines, removed_count, useless)
+        i -= 1
+    print("Cleaned up {} lines".format(str(removed_count)))
 
 
 def quit_script():
