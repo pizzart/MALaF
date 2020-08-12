@@ -1,4 +1,6 @@
-# Asobo Language File Modifier
+<h1 align=center>Modifier for Asobo Language Files - MALaF
+
+<img alt="GitHub Release" src="https://img.shields.io/github/v/release/PizzArt/MALaF?logo=github&style=for-the-badge&link=&link=https://github.com/PizzArt/MALaF/releases/latest"> <img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/PizzArt/MALaF?style=for-the-badge&link=https://github.com/PizzArt/MALaF/commit/master"> <img alt="GitHub License" src="https://img.shields.io/github/license/PizzArt/MALaF?style=for-the-badge&link=&link=https://www.gnu.org/licenses/gpl-3.0-standalone.html&logo=gnu"></h1>
 
 ## Usage
 When you first start the program, you will be introduced to a command line (might change to a gui in the near future). The script will ask you to either automatically search for a language file, create a new file, or input a valid path to the file. If you choose to search, the script will try to find any language files on the current drive (Windows) or any folder in the system (Linux, not sure about MacOS, give it a try and let me know)
