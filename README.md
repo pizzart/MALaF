@@ -24,7 +24,7 @@ If you want to build the executable for yourself at any time:
         2. Clone the repository: `git clone https://github.com/PizzArt/MALaF`
     * Or download the repository:
 
-        ![Download ZIP image](/assets/download_zip.png)
+        ![Download ZIP - GIF](/assets/download_zip.gif)
 3. Install PyInstaller using pip
     1. Install pip
         * Windows and MacOS python installations should have pip installed, reinstall python with pip if you don't have it

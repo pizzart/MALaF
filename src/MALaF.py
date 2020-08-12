@@ -19,7 +19,7 @@ ignored_patterns = ['END OF ACTION', 'P1', 'ABC', '\{Level\}']
 ignored_characters = ['%', '~', ' ', '$', '²']
 running = True
 
-version = 'v1.3-B-2.1'
+version = 'v1.3'
 asobo = "ASOBO LANGUAGE FILE MODIFIER " + version
 
 welcome_text = """
@@ -94,10 +94,18 @@ def clear_cmdline():
 
 
 def stop(time):
-    print("Quitting.")
-    sleep(time)
-    clear_cmdline()
-    sys.exit()
+    time *= 10
+    time_len = len(str(time))
+    while time > -0.1:
+        time_str = str(time)
+        time_str = '0' * (time_len - len(time_str)) + time_str
+        print("Quitting in {}.{}".format(time_str[0], time_str[1].replace('.', '0')), end='\r')
+        sleep(0.1)
+        time -= 1
+    try:
+        sys.exit()
+    except SystemExit:
+        print("\nQuit.")
 
 
 def prompt(cmd, cmd_start):
@@ -173,11 +181,15 @@ def read_lines():
 def clean():
     global lines
     useless = ['""', '"$"', '"^940 ^000"', '" "']
+    removed_count = 0
     for line in lines:
         splitLine = line.split(' ', 2)
         if splitLine[0] == 'TT':
             if splitLine[2] in useless:
+                print(line)
                 lines.remove(line)
+                removed_count += 1
+    print("Removed lines: " + str(removed_count))
 
 
 def quit_script():
@@ -194,7 +206,7 @@ def color_lines(lines, rainbow, color='000'):
         splitLine = line.split(' ', 2)
         if splitLine[0] == 'TT':
             splitLine[2] = decolorize(splitLine[2])
-            if (re.search(ignored, line) for ignored in ignored_patterns):
+            if any(re.search(ignored, line) for ignored in ignored_patterns):
                 continue
             if rainbow:
                 color = str(random.randint(100, 999))
@@ -235,7 +247,7 @@ def colorize():
         symbols_question = input("Colorize by each 'line' or 'character'?: ")
         if prompt(symbols_question, 'lin'):
             color_lines(lines, True)
-        elif prompt(symbols_question, 'lett'):
+        elif prompt(symbols_question, 'char'):
             color_letters(lines)
         else:
             print("Invalid selection.")
@@ -271,7 +283,6 @@ def default():
         global lines
         lines = open(default_text_path, 'r',
                      encoding='utf8').read().splitlines()
-        clean()
 
 
 def get_help():
@@ -292,8 +303,10 @@ commands = {
 
 def get_command():
     command = input('>>> ')
-    if command.lower().strip().startswith(command[:4]):
-        commands[command]()
+    command = command.lower().strip()
+    found_command = [key for key in commands if re.search(key[:3], command)]
+    if found_command:
+        commands[found_command[0]]()
     elif command != '':
         print("No such command.")
 
@@ -342,19 +355,13 @@ try:
     main()
 except KeyboardInterrupt:
     print("\nReceived a keyboard interrupt.")
-    stop(0.75)
-except SystemExit:
-    pass
+    stop(1)
 except Exception:
-    currentTime = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+    current_time = datetime.now().strftime('%d/%m/%y %H:%M:%S')
     print(exception_text)
-    errorOutput = open('error_output.txt', 'a+', encoding='utf8')
-    errorOutput.write("Time: {}\n".format(currentTime))
-    errorOutput.write(system_info)
-    errorOutput.write("\n\nException Start\n")
-    print_exc(file=errorOutput)
-    errorOutput.write("Exception End\n\n")
-    errorOutput.write(report)
-    errorOutput.write("\n\n\n\n")
-    errorOutput.close()
+    error_output = open('error_output.txt', 'a+', encoding='utf8')
+    error_output.write("{}\n{}\n\n".format(current_time, system_info))
+    print_exc(file=error_output)
+    error_output.write("\n\n" + report + "\n\n\n\n")
+    error_output.close()
     stop(7.5)
