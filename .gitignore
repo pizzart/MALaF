@@ -141,3 +141,4 @@ cython_debug/
 # Output by the script
 error_output.txt
 tt01.pc
+build.bat
