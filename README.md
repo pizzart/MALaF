@@ -8,7 +8,7 @@
 <img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/PizzArt/MALaF?style=for-the-badge">
 </a>
 <a href="https://www.gnu.org/licenses/gpl-3.0-standalone.html&logo=gnu">
-<img alt="GitHub License" src="https://img.shields.io/github/license/PizzArt/MALaF?style=for-the-badge">
+<img alt="GitHub License" src="https://img.shields.io/github/license/PizzArt/MALaF?style=for-the-badge&logo=gnu">
 </a>
 </h2>
 
