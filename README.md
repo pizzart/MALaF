@@ -1,5 +1,9 @@
 <h1 align=center>Modifier for Asobo Language Files - MALaF</h1>
 
+<h1 align=center>THE PROJECT HAS MOVED!</h1>
+<h2 align=center>https://pizzart.github.io/MALaF.html</h2>
+
+
 <h2 align=center>
 <a href="https://github.com/PizzArt/MALaF/releases/latest">
 <img alt="GitHub Release" src="https://img.shields.io/github/v/release/PizzArt/MALaF?logo=github&style=for-the-badge">
@@ -11,6 +15,8 @@
 <img alt="GitHub License" src="https://img.shields.io/github/license/PizzArt/MALaF?style=for-the-badge&logo=gnu">
 </a>
 </h2>
+
+
 
 ## Usage
 When you first start the program, you will be introduced to a command line (might change to a gui in the near future). The script will ask you to either automatically search for a language file, create a new file, or input a valid path to the file. If you choose to search, the script will try to find any language files on the current drive (Windows) or any folder in the system (Linux, not sure about MacOS, give it a try and let me know)
