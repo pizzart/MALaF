@@ -2,11 +2,21 @@
 <h6 align=center><a href="https://pizzart.github.io/MALaF.html">Available on the web<a/> (half-borked for the time being)</h6>
 
 ## Usage
-When you first start the program, you will be introduced to a command line (might change to a gui in the near future). The script will ask you to either automatically search for a language file, create a new file, or input a valid path to the file. If you choose to search, the script will try to find any language files on the current drive (Windows) or any folder in the system (Linux, not sure about MacOS, give it a try and let me know). Once the script finds any files, it will show the paths to them. You will have to choose a language file by its number in the list, starting from 0.
+```MALaF.py [-h] [-c UNIT] [-C RGB] [-r [UNIT ...]] [-i [FILE]] [-o [FILE]]
 
-After you choose the file, you can start messing with the language file!
+Edit Asobo TT files
 
-You can get help by using the "help" command.
+options:
+  -h, --help            show this help message and exit
+  -c UNIT, --colorize UNIT
+                        colorize the file
+  -C RGB, --color RGB   sets every line to a color specified as RGB with values between 0 and 9
+  -r [UNIT ...], --randomize [UNIT ...]
+                        jumble up the lines/words (can be specified multiple times)
+  -i [FILE], --input [FILE]
+                        input file (default: default.txt)
+  -o [FILE], --output [FILE]
+                        destination (file/path) (default: out.txt)```
 
 ### Notes
 Asobo games cannot accept more than ~1020 characters in a single string in a language file, otherwise the game will crash on startup. Because of this some lines might be white when using the --colorize flag
