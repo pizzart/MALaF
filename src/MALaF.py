@@ -11,18 +11,15 @@ def parse():
     parser.add_argument("-c", "--colorize", metavar="UNIT", choices=["char", "word", "line"], action="store", help="colorize the file")
     parser.add_argument("-C", "--color", metavar="RGB", action="store", default=-1, type=int, help="sets every line to a color specified as RGB with values between 0 and 9")
     parser.add_argument("-r", "--randomize", metavar="UNIT", choices=["word", "line"], nargs="*", help="jumble up the lines/words (can be specified multiple times)")
-    parser.add_argument("-i", "--input", metavar="FILE", help="input file", nargs="?", const="files/default.txt", default="files/default.txt")
-    parser.add_argument("-o", "--output", metavar="FILE", help="destination (file/path)", nargs="?", const="files/out.txt", default="files/out.txt")
+    parser.add_argument("-i", "--input", metavar="FILE", help="input file (default: default.txt)", nargs="?", const="default.txt", default="default.txt")
+    parser.add_argument("-o", "--output", metavar="FILE", help="destination (file/path) (default: out.txt)", nargs="?", const="out.txt", default="out.txt")
     return parser.parse_args()
 
-def clean(lines):
-    useless = ['""', '"$"', '"^940 ^000"', '" "']
-    for line in lines:
-        splitLine = line.split(' ', 2)
-        if splitLine[0] == 'TT':
-            if splitLine[2] in useless:
-                lines.remove(line)
-    print("Cleaned up {} lines".format(str(removed_count)))
+def check_tt(spline):
+    if spline[0] == "TT":
+        num = int(spline[1])
+        return not 15500 <= num <= 15731 and not num <= 99
+    return False
 
 def decolorize(line):
     return re.sub("\^\d\d\d", "", line)
@@ -116,12 +113,6 @@ def randomize(lines, units):
                     newlines[i] = 'TT {} "{}"'.format(splitLine[1], ' '.join(shuffled))
 
     return newlines
-
-def check_tt(spline):
-    if spline[0] == "TT":
-        num = int(spline[1])
-        return not 15500 <= num <= 15731 and not num <= 99
-    return False
 
 def main():
     args = vars(parse())
