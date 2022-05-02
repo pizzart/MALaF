@@ -9,14 +9,7 @@ After you choose the file, you can start messing with the language file!
 You can get help by using the "help" command.
 
 ### Notes
-Asobo games cannot accept more than ~1020 characters in a single string in a language file, otherwise the game will crash on startup.
-
-## Building the binary
-Prerequisites: pyinstaller (`pip install pyinstaller --user`)
-1. Get the repository: `git clone https://github.com/pizzart/MALaF` or download ZIP
-2. Use PyInstaller: `pyinstaller --clean -n MALaF -F ./src/MALaF.py`
-
-The executable should be in the `dist` folder
+Asobo games cannot accept more than ~1020 characters in a single string in a language file, otherwise the game will crash on startup. Because of this some lines might be white when using the --colorize flag
 
 ## Contributing
 Much appreciated
